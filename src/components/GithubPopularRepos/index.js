@@ -33,19 +33,23 @@ const GithubPopularRepos = () => {
     setApiStatus(apiStatusConstrain.inProgress)
     const url = `${githubReposApiUrl}${initialLanguage}`
     const response = await fetch(url)
-    const data = await response.json()
+    if (response.ok) {
+      const data = await response.json()
 
-    const formattedData = data.popular_repos.map(repo => ({
-      id: repo.id,
-      name: repo.name,
-      issuesCount: repo.issues_count,
-      forksCount: repo.forks_count,
-      starsCount: repo.stars_count,
-      avatarUrl: repo.avatar_url,
-    }))
+      const formattedData = data.popular_repos.map(repo => ({
+        id: repo.id,
+        name: repo.name,
+        issuesCount: repo.issues_count,
+        forksCount: repo.forks_count,
+        starsCount: repo.stars_count,
+        avatarUrl: repo.avatar_url,
+      }))
 
-    setResponseData(formattedData)
-    setApiStatus(apiStatusConstrain.success)
+      setResponseData(formattedData)
+      setApiStatus(apiStatusConstrain.success)
+    } else {
+      setApiStatus(apiStatusConstrain.fail)
+    }
   }
 
   useEffect(() => {
@@ -82,13 +86,24 @@ const GithubPopularRepos = () => {
       case apiStatusConstrain.inProgress:
         return renderLoadingView()
       case apiStatusConstrain.fail:
-        return <p>Failed to fetch data</p>
+        return renderWhenFail()
       default:
         return null
     }
   }
+  const renderWhenFail = () => {
+    return (
+      <div>
+        <img
+          src="https://assets.ccbp.in/frontend/react-js/api-failure-view.png"
+          alt="failure view"
+        />
+        <h1>Something Went Wrong</h1>
+      </div>
+    )
+  }
   const renderLoadingView = () => (
-    <div className="products-loader-container">
+    <div className="products-loader-container" data-testid="loader">
       <Loader type="ThreeDots" color="#0b69ff" height="50" width="50" />
     </div>
   )
